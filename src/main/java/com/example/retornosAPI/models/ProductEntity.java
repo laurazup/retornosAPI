@@ -28,10 +28,16 @@ public class ProductEntity {
     }
 
     public void setName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("O nome do produto não pode ser nulo ou vazio.");
+        }
         this.name = name;
     }
 
     public void setPrice(Double price) {
+        if (price == null || price <= 0) {
+            throw new IllegalArgumentException("O preço do produto deve ser maior que zero.");
+        }
         this.price = price;
     }
 
