@@ -19,20 +19,31 @@ public class ProductService {
     }
 
     public Product createProduct(Product product) {
-        ProductEntity entity = new ProductEntity(null, product.name(), product.price());
+        if (product.stock() == null || product.category() == null) {
+            throw new IllegalArgumentException("Os campos 'stock' e 'category' são obrigatórios.");
+        }
+
+        ProductEntity entity = new ProductEntity(
+                null,
+                product.name(),
+                product.price(),
+                product.stock(),
+                product.category()
+        );
+
         ProductEntity savedEntity = repository.save(entity);
-        return new Product(savedEntity.getId(), savedEntity.getName(), savedEntity.getPrice());
+        return new Product(savedEntity.getId(), savedEntity.getName(), savedEntity.getPrice(), savedEntity.getStock(), savedEntity.getCategory());
     }
 
     public Product getProductById(Long id) {
         ProductEntity entity = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
-        return new Product(entity.getId(), entity.getName(), entity.getPrice());
+        return new Product(entity.getId(), entity.getName(), entity.getPrice(), entity.getStock(), entity.getCategory());
     }
 
     public List<Product> getAllProducts() {
         return repository.findAll().stream()
-                .map(entity -> new Product(entity.getId(), entity.getName(), entity.getPrice()))
+                .map(entity -> new Product(entity.getId(), entity.getName(), entity.getPrice(),entity.getStock(), entity.getCategory() ))
                 .collect(Collectors.toList());
     }
 
@@ -49,12 +60,14 @@ public class ProductService {
         // Atualizar os dados do produto
         existingEntity.setName(updatedProduct.name());
         existingEntity.setPrice(updatedProduct.price());
+        existingEntity.setStock(updatedProduct.stock());
+        existingEntity.setCategory(updatedProduct.category());
 
         // Salvar as alterações no banco de dados
         ProductEntity savedEntity = repository.save(existingEntity);
 
         // Retornar o produto atualizado
-        return new Product(savedEntity.getId(), savedEntity.getName(), savedEntity.getPrice());
+        return new Product(savedEntity.getId(), savedEntity.getName(), savedEntity.getPrice(),savedEntity.getStock(), savedEntity.getCategory());
     }
 
     // Buscar produtos pelo nome
@@ -70,7 +83,7 @@ public class ProductService {
             System.out.println("Produtos encontrados com o nome '" + name + "': " + entities.size());
         }
         return entities.stream()
-                .map(entity -> new Product(entity.getId(), entity.getName(), entity.getPrice()))
+                .map(entity -> new Product(entity.getId(), entity.getName(), entity.getPrice(),entity.getStock(), entity.getCategory()))
                 .collect(Collectors.toList());
     }
 }
