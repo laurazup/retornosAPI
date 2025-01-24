@@ -15,10 +15,7 @@ public class ProductEntity {
     @NotBlank(message = "O nome é obrigatório")
     @Size(min = 3, max = 100, message = "O nome deve ter entre 3 e 100 caracteres")
     private String name;
-
-    @Size(max = 500, message = "A descrição pode ter no máximo 500 caracteres")
-    private String description;
-
+    
     @NotNull(message = "O preço é obrigatório")
     @DecimalMin(value = "0.01", message = "O preço deve ser maior que 0")
     private Double price;
@@ -32,10 +29,12 @@ public class ProductEntity {
     private String category;
 
 
-    public ProductEntity(Long id, String name, Double price) {
+    public ProductEntity(Long id, String name, Double price, Integer stock, String category) {
         this.id = id;
         this.name = name;
         this.price = price;
+        this.stock = stock;
+        this.category = category;
     }
 
     public void setId(Long id) {
@@ -69,4 +68,25 @@ public class ProductEntity {
     }
 
 
+    public Integer getStock() {
+        return stock;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setStock(Integer stock) {
+        if (stock == null || stock < 0) {
+            throw new IllegalArgumentException("A quantidade em estoque deve ser maior ou igual a zero.");
+        }
+        this.stock = stock;
+    }
+
+    public void setCategory(String category) {
+        if (category == null || category.trim().isEmpty()) {
+            throw new IllegalArgumentException("A categoria do produto não pode ser nula ou vazia.");
+        }
+        this.category = category;
+    }
 }
