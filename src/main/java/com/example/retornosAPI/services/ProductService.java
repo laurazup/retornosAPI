@@ -43,7 +43,7 @@ public class ProductService {
 
     public List<Product> getAllProducts() {
         return repository.findAll().stream()
-                .map(entity -> new Product(entity.getId(), entity.getName(), entity.getPrice(),entity.getStock(), entity.getCategory() ))
+                .map(entity -> new Product(entity.getId(), entity.getName(), entity.getPrice(), entity.getStock(), entity.getCategory()))
                 .collect(Collectors.toList());
     }
 
@@ -67,7 +67,7 @@ public class ProductService {
         ProductEntity savedEntity = repository.save(existingEntity);
 
         // Retornar o produto atualizado
-        return new Product(savedEntity.getId(), savedEntity.getName(), savedEntity.getPrice(),savedEntity.getStock(), savedEntity.getCategory());
+        return new Product(savedEntity.getId(), savedEntity.getName(), savedEntity.getPrice(), savedEntity.getStock(), savedEntity.getCategory());
     }
 
     // Buscar produtos pelo nome
@@ -83,7 +83,7 @@ public class ProductService {
             System.out.println("Produtos encontrados com o nome '" + name + "': " + entities.size());
         }
         return entities.stream()
-                .map(entity -> new Product(entity.getId(), entity.getName(), entity.getPrice(),entity.getStock(), entity.getCategory()))
+                .map(entity -> new Product(entity.getId(), entity.getName(), entity.getPrice(), entity.getStock(), entity.getCategory()))
                 .collect(Collectors.toList());
     }
 }
