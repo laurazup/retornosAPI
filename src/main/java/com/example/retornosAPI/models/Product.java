@@ -1,5 +1,7 @@
 package com.example.retornosAPI.models;
 
-public record Product(Long id, String name, Double price, Integer stock, String category) {
+import com.example.retornosAPI.enums.Category;
+
+public record Product(Long id, String name, Double price, Integer stock, Category category) {
 
 }
