@@ -1,12 +1,12 @@
 package com.example.retornosAPI.services;
 
-import com.example.retornosAPI.models.Product;
+import com.example.retornosAPI.exceptions.InvalidProductException;
+import com.example.retornosAPI.exceptions.ProductNotFoundException;
 import com.example.retornosAPI.models.ProductEntity;
 import com.example.retornosAPI.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -17,62 +17,59 @@ public class ProductService {
         this.repository = repository;
     }
 
-    public Product createProduct(Product product) {
-        ProductEntity entity = new ProductEntity(product.id(), product.name(), product.price(), product.stock(), product.category());
-        ProductEntity savedEntity = repository.save(entity);
-
-        return new Product(savedEntity.getId(), savedEntity.getName(), savedEntity.getPrice(), savedEntity.getStock(), savedEntity.getCategory());
+    public ProductEntity createProduct(ProductEntity product) {
+        validateProduct(product);
+        return repository.save(product);
     }
 
-    public Product getProductById(Long id) {
-        ProductEntity entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-        return new Product(entity.getId(), entity.getName(), entity.getPrice(), entity.getStock(), entity.getCategory());
+    public ProductEntity getProductById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Produto com ID " + id + " não encontrado"));
     }
 
-    public List<Product> getAllProducts() {
-        return repository.findAll().stream()
-                .map(entity -> new Product(entity.getId(), entity.getName(), entity.getPrice(), entity.getStock(), entity.getCategory()))
-                .collect(Collectors.toList());
+    public List<ProductEntity> getAllProducts() {
+        return repository.findAll();
     }
 
     public void deleteProduct(Long id) {
+        if (!repository.existsById(id)) {
+            throw new ProductNotFoundException("Produto com ID " + id + " não encontrado");
+        }
         repository.deleteById(id);
     }
 
-    // Atualizar um produto existente
-    public Product updateProduct(Long id, Product updatedProduct) {
-        // Verificar se o produto existe
-        ProductEntity existingEntity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product with ID " + id + " not found"));
+    public ProductEntity updateProduct(Long id, ProductEntity updatedProduct) {
+        validateProduct(updatedProduct);
+        ProductEntity existingProduct = repository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Produto com ID " + id + " não encontrado"));
 
-        // Atualizar os dados do produto
-        existingEntity.setName(updatedProduct.name());
-        existingEntity.setPrice(updatedProduct.price());
-        existingEntity.setStock(updatedProduct.stock());
-        existingEntity.setCategory(updatedProduct.category());
+        existingProduct.setName(updatedProduct.getName());
+        existingProduct.setDescription(updatedProduct.getDescription());
+        existingProduct.setPrice(updatedProduct.getPrice());
+        existingProduct.setStock(updatedProduct.getStock());
+        existingProduct.setCategory(updatedProduct.getCategory());
 
-        // Salvar as alterações no banco de dados
-        ProductEntity savedEntity = repository.save(existingEntity);
-
-        // Retornar o produto atualizado
-        return new Product(savedEntity.getId(), savedEntity.getName(), savedEntity.getPrice(), savedEntity.getStock(), savedEntity.getCategory());
+        return repository.save(existingProduct);
     }
 
-    // Buscar produtos pelo nome
-    public List<Product> getProductsByName(String name) {
-        if (name == null || name.isEmpty()) {
-            throw new IllegalArgumentException("O nome do produto não pode ser vazio.");
+    private void validateProduct(ProductEntity product) {
+        if (product.getName() == null || product.getName().trim().isEmpty()) {
+            throw new InvalidProductException("O nome do produto é obrigatório.");
         }
-
-        List<ProductEntity> entities = repository.findByNameContainingIgnoreCase(name);
-        if (entities.isEmpty()) {
-            System.out.println("Nenhum produto encontrado com o nome: " + name);
-        } else {
-            System.out.println("Produtos encontrados com o nome '" + name + "': " + entities.size());
+        if (product.getName().length() < 3 || product.getName().length() > 100) {
+            throw new InvalidProductException("O nome do produto deve ter entre 3 e 100 caracteres.");
         }
-        return entities.stream()
-                .map(entity -> new Product(entity.getId(), entity.getName(), entity.getPrice(), entity.getStock(), entity.getCategory()))
-                .collect(Collectors.toList());
+        if (product.getDescription() != null && product.getDescription().length() > 500) {
+            throw new InvalidProductException("A descrição pode ter no máximo 500 caracteres.");
+        }
+        if (product.getPrice() == null || product.getPrice() <= 0) {
+            throw new InvalidProductException("O preço do produto deve ser maior que zero.");
+        }
+        if (product.getStock() == null || product.getStock() < 0) {
+            throw new InvalidProductException("A quantidade em estoque deve ser maior ou igual a zero.");
+        }
+        if (product.getCategory() == null) {
+            throw new InvalidProductException("A categoria do produto é obrigatória.");
+        }
     }
 }
