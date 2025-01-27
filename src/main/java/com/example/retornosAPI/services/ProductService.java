@@ -6,7 +6,6 @@ import com.example.retornosAPI.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,19 +18,9 @@ public class ProductService {
     }
 
     public Product createProduct(Product product) {
-        if (product.stock() == null || product.category() == null) {
-            throw new IllegalArgumentException("Os campos 'stock' e 'category' são obrigatórios.");
-        }
-
-        ProductEntity entity = new ProductEntity(
-                null,
-                product.name(),
-                product.price(),
-                product.stock(),
-                product.category()
-        );
-
+        ProductEntity entity = new ProductEntity(product.id(), product.name(), product.price(), product.stock(), product.category());
         ProductEntity savedEntity = repository.save(entity);
+
         return new Product(savedEntity.getId(), savedEntity.getName(), savedEntity.getPrice(), savedEntity.getStock(), savedEntity.getCategory());
     }
 
