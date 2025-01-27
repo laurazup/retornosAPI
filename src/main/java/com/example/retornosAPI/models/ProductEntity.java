@@ -1,11 +1,10 @@
 package com.example.retornosAPI.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import org.springframework.lang.NonNull;
 
 @Entity
+@Table(name="products")
 public class ProductEntity {
 
     @Id

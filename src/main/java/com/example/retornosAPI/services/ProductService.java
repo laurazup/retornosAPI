@@ -1,8 +1,12 @@
 package com.example.retornosAPI.services;
 
+import com.example.retornosAPI.dtos.ProductRequestDTO;
+import com.example.retornosAPI.exceptions.ResourceNotFoundException;
 import com.example.retornosAPI.models.Product;
 import com.example.retornosAPI.models.ProductEntity;
 import com.example.retornosAPI.repositories.ProductRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,20 +17,21 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final ProductRepository repository;
+    private final Logger logger = LoggerFactory.getLogger(ProductService.class);
 
     public ProductService(ProductRepository repository) {
         this.repository = repository;
     }
 
-    public Product createProduct(Product product) {
-        ProductEntity entity = new ProductEntity(null, product.name(), product.price());
+    public Product createProduct(ProductRequestDTO product) {
+        ProductEntity entity = new ProductEntity(null, product.getName(), product.getPrice());
         ProductEntity savedEntity = repository.save(entity);
         return new Product(savedEntity.getId(), savedEntity.getName(), savedEntity.getPrice());
     }
 
     public Product getProductById(Long id) {
         ProductEntity entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         return new Product(entity.getId(), entity.getName(), entity.getPrice());
     }
 
@@ -65,9 +70,11 @@ public class ProductService {
 
         List<ProductEntity> entities = repository.findByNameContainingIgnoreCase(name);
         if (entities.isEmpty()) {
-            System.out.println("Nenhum produto encontrado com o nome: " + name);
+//            System.out.println("Nenhum produto encontrado com o nome: " + name);
+            logger.warn("Nenhum produto encontrado com o nome: " + name);
         } else {
-            System.out.println("Produtos encontrados com o nome '" + name + "': " + entities.size());
+//            System.out.println("Produtos encontrados com o nome '" + name + "': " + entities.size());
+            logger.info("Produtos encontrados com o nome '" + name + "': " + entities.size());
         }
         return entities.stream()
                 .map(entity -> new Product(entity.getId(), entity.getName(), entity.getPrice()))

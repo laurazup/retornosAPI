@@ -1,7 +1,9 @@
 package com.example.retornosAPI.controllers;
 
+import com.example.retornosAPI.dtos.ProductRequestDTO;
 import com.example.retornosAPI.models.Product;
 import com.example.retornosAPI.services.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,14 +13,11 @@ import java.util.List;
 @RequestMapping("/api/products")
 public class ProductController {
 
-    private final ProductService service;
+    @Autowired
+    public ProductService service;
 
-    public ProductController(ProductService service) {
-        this.service = service;
-    }
-
-    @PostMapping
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+    @PostMapping("teste")
+    public ResponseEntity<Product> createProduct(@RequestBody ProductRequestDTO product) {
         return ResponseEntity.ok(service.createProduct(product));
     }
 
