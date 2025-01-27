@@ -1,8 +1,7 @@
 package com.example.retornosAPI.controllers;
 
-import com.example.retornosAPI.models.Product;
+import com.example.retornosAPI.models.ProductEntity;
 import com.example.retornosAPI.services.ProductService;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,18 +18,23 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<Product> createProduct(@Valid @RequestBody Product product) {
+    public ResponseEntity<ProductEntity> createProduct(@RequestBody ProductEntity product) {
         return ResponseEntity.ok(service.createProduct(product));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
+    public ResponseEntity<ProductEntity> getProductById(@PathVariable Long id) {
         return ResponseEntity.ok(service.getProductById(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts() {
+    public ResponseEntity<List<ProductEntity>> getAllProducts() {
         return ResponseEntity.ok(service.getAllProducts());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductEntity> updateProduct(@PathVariable Long id, @RequestBody ProductEntity product) {
+        return ResponseEntity.ok(service.updateProduct(id, product));
     }
 
     @DeleteMapping("/{id}")
